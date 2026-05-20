@@ -45,11 +45,9 @@ detect_arch() {
                 exit 1 ;;
         esac
     fi
-    # PROCESSOR_ARCHITEW6432 is set by Windows when a non-native-arch process
-    # runs under emulation (e.g. x64 Git Bash on an ARM64 machine).
-    # It reflects the true machine architecture and takes precedence.
-    if [ -n "${PROCESSOR_ARCHITEW6432:-}" ]; then
-        case "${PROCESSOR_ARCHITEW6432}" in
+    # RUNNER_ARCH is set by Github runner
+    if [ -n "${RUNNER_ARCH:-}" ]; then
+        case "${RUNNER_ARCH}" in
             ARM64) echo "arm64" ; return ;;
             AMD64) echo "x64"   ; return ;;
         esac
