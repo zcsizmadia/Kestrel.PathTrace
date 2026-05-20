@@ -151,6 +151,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task TryGetTcpInfoV0_ReturnsFalse_ForInvalidHandle()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         // A non-zero value that is not a valid SOCKET handle.
         nint invalidHandle = new(0x1234_5678);
 
@@ -162,6 +167,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_ReturnsNull_ForInvalidHandle()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         nint invalidHandle = new(0x1234_5678);
 
         TcpInfoV0? info = TcpInfoInterop.GetTcpInfoV0(invalidHandle);
@@ -195,6 +205,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task TryGetTcpInfoV0_ReturnsTrue_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -213,6 +228,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_ReturnsNonNull_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -231,6 +251,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_State_IsEstablished_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -250,6 +275,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_Mss_MeetsMinimumTcpSpec_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -271,6 +301,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_RcvWnd_IsNonZero_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -290,6 +325,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_SndWnd_IsNonZero_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -309,6 +349,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_RcvBuf_IsNonZero_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -328,6 +373,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_BytesOut_IsNonZero_AfterDataSent()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -357,6 +407,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_BytesIn_IsNonZero_AfterDataReceived()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -393,6 +448,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task TryGetTcpInfoV0_CalledTwice_BothSucceed_WithEstablishedState()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {
@@ -417,6 +477,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_AllFields_Accessible_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         // Smoke-test: verify all 19 struct fields can be read without throwing.
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
@@ -459,6 +524,11 @@ public sealed class TcpInfoInteropTests
     [Test]
     public async Task GetTcpInfoV0_MinRttUs_IsNotGreaterThan_RttUs_ForConnectedSocket()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         var (listener, client, serverSide) = await CreateLoopbackConnectionAsync();
         try
         {

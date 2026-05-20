@@ -15,6 +15,8 @@
 set -x
 set -euo pipefail
 
+uname -a
+
 printenv
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
