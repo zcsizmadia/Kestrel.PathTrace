@@ -89,13 +89,8 @@ echo "Source : ${NATIVE_SRC}"
 echo ""
 
 # ── CMake generator selection ──────────────────────────────────────────────────
-# When running from a VS Developer Command Prompt (VSINSTALLDIR is set):
-#   • Prefer Ninja — single-config, fast, and inherits the correct architecture
-#     from the vcvarsall environment automatically.
-#   • If Ninja is absent, fall back to the Visual Studio generator but pass -A
-#     explicitly; VS generators otherwise default to x86 regardless of the shell.
 CMAKE_EXTRA_ARGS=()
-if [ "$OS" = "win" ] && [ -n "${VSINSTALLDIR:-}" ]; then
+if [ "$OS" = "win" ]; then
     if command -v ninja >/dev/null 2>&1; then
         CMAKE_EXTRA_ARGS+=("-G" "Ninja")
         echo "Generator: Ninja (MSVC toolchain)"
