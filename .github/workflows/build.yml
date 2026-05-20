@@ -99,7 +99,7 @@ jobs:
             10.0.x
 
       - name: Download all native library artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: runtimes-*
           path: runtimes
