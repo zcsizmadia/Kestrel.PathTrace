@@ -7,9 +7,6 @@
     <Description>Per-request Kestrel pipeline latency tracing: NIC hardware timestamping through transport, middleware, endpoint, and writeback stages.</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Kestrel.PathTrace.Abstractions\Kestrel.PathTrace.Abstractions.csproj" />
-  </ItemGroup>
 
   <!-- ── Pre-built native shims — output copy (not packed here) ────────────────
        Populated by native/scripts/build-and-install.sh before dotnet build.

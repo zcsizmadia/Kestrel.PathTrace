@@ -1,6 +1,5 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Kestrel.PathTrace.Abstractions/Kestrel.PathTrace.Abstractions.csproj" />
     <Project Path="src/Kestrel.PathTrace.Export.Prometheus/Kestrel.PathTrace.Export.Prometheus.csproj" />
     <Project Path="src/Kestrel.PathTrace.Export.OpenTelemetry/Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
     <Project Path="src/Kestrel.PathTrace/Kestrel.PathTrace.csproj" />

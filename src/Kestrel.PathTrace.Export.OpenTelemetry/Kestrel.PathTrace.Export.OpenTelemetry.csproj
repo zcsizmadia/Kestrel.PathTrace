@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Kestrel.PathTrace.Abstractions\Kestrel.PathTrace.Abstractions.csproj" />
+    <ProjectReference Include="..\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
   </ItemGroup>
 
 </Project>
