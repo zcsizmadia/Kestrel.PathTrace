@@ -12,12 +12,7 @@
 # Prerequisites: cmake, a C compiler (gcc / clang / MSVC / MinGW)
 # The CMake generator is not forced — CMake picks the best available one.
 
-set -x
 set -euo pipefail
-
-uname -a
-
-printenv
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
