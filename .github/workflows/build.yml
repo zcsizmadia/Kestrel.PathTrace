@@ -54,7 +54,7 @@ jobs:
         run: |
           if [ -f /etc/alpine-release ]; then
             apk add --no-cache \
-              build-base cmake clang git curl tar bash icu pkgconf
+              build-base cmake clang git curl tar bash icu pkgconf linux-headers
           fi
 
       - name: Install .NET SDKs
