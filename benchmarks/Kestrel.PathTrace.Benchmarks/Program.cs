@@ -16,8 +16,14 @@ internal static class Program
     private const int WarmupIterations = 10_000;
     private const int BenchIterations  = 1_000_000;
 
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
+        if (args.Contains("--bandwidth"))
+        {
+            await BandwidthBenchmark.RunAsync(ParseBandwidthOptions(args));
+            return;
+        }
+
         Console.WriteLine("Kestrel.PathTrace Micro-Benchmarks");
         Console.WriteLine(new string('=', 50));
         Console.WriteLine();
@@ -203,5 +209,25 @@ internal static class Program
         {
             _ = Native.Linux.HwtstampInterop.SampleClocks();
         }
+    }
+
+    // ── Bandwidth benchmark helpers ──────────────────────────────────────────
+
+    private static BandwidthBenchmark.Options ParseBandwidthOptions(string[] args) =>
+        new()
+        {
+            SampleRate        = ParseInt(args, "--sample-rate",   1),
+            DurationSeconds   = ParseInt(args, "--duration",     10),
+            WarmupSeconds     = ParseInt(args, "--warmup",        3),
+            Concurrency       = ParseInt(args, "--concurrency",   8),
+            ResponseSizeBytes = ParseInt(args, "--response-size", 1_024),
+        };
+
+    private static int ParseInt(string[] args, string flag, int defaultValue)
+    {
+        int idx = Array.IndexOf(args, flag);
+        return idx >= 0 && idx + 1 < args.Length && int.TryParse(args[idx + 1], out int val)
+            ? val
+            : defaultValue;
     }
 }

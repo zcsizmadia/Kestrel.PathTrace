@@ -16,21 +16,33 @@ public sealed class RequestPathTelemetryMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IRequestPathTelemetrySink _sink;
+    private readonly int _sampleRate;
+    private readonly string[] _excludedPrefixes;
+    private long _requestCounter;
 
     /// <summary>
     /// Initialises the middleware.
     /// </summary>
     public RequestPathTelemetryMiddleware(
         RequestDelegate next,
-        IRequestPathTelemetrySink sink)
+        IRequestPathTelemetrySink sink,
+        PathTraceOptions options)
     {
-        _next = next;
-        _sink = sink;
+        _next             = next;
+        _sink             = sink;
+        _sampleRate       = Math.Max(1, options.SampleRate);
+        _excludedPrefixes = [.. options.ExcludedRoutePrefixes ?? []];
     }
 
     /// <summary>Processes an HTTP request.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
+        if (!ShouldSample(context))
+        {
+            await _next(context);
+            return;
+        }
+
         long middlewareStart = Stopwatch.GetTimestamp();
 
         ConnectionTelemetryState? connState =
@@ -62,6 +74,24 @@ public sealed class RequestPathTelemetryMiddleware
     // -----------------------------------------------------------------------
     // Private helpers
     // -----------------------------------------------------------------------
+
+    private bool ShouldSample(HttpContext context)
+    {
+        if (_excludedPrefixes.Length > 0)
+        {
+            PathString path = context.Request.Path;
+            foreach (string prefix in _excludedPrefixes)
+            {
+                if (path.StartsWithSegments(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return _sampleRate <= 1 ||
+               Interlocked.Increment(ref _requestCounter) % _sampleRate == 0;
+    }
 
     private static RequestPathTelemetry BuildInitialTelemetry(
         HttpContext context,
