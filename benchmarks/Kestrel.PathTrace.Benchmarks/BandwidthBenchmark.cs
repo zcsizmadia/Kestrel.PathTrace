@@ -23,6 +23,11 @@ namespace Kestrel.PathTrace.Benchmarks;
 ///   dotnet run -c Release --project benchmarks/Kestrel.PathTrace.Benchmarks -- --bandwidth
 ///   dotnet run -c Release --project benchmarks/Kestrel.PathTrace.Benchmarks -- --bandwidth \
 ///       --sample-rate 10 --concurrency 16 --duration 15 --response-size 4096
+///
+/// Hardware timestamps (Linux only) require a physical NIC — loopback (127.0.0.1)
+/// never has HW timestamp support. Bind to your NIC's address instead:
+///   dotnet run -c Release --project benchmarks/Kestrel.PathTrace.Benchmarks -- --bandwidth \
+///       --bind 192.168.1.100   # server + client both use this address
 /// </summary>
 internal static class BandwidthBenchmark
 {
@@ -30,11 +35,16 @@ internal static class BandwidthBenchmark
 
     internal sealed class Options
     {
-        public int SampleRate        { get; init; } = 1;
-        public int DurationSeconds   { get; init; } = 10;
-        public int WarmupSeconds     { get; init; } = 3;
-        public int Concurrency       { get; init; } = 8;
-        public int ResponseSizeBytes { get; init; } = 1_024;
+        public int    SampleRate        { get; init; } = 1;
+        public int    DurationSeconds   { get; init; } = 10;
+        public int    WarmupSeconds     { get; init; } = 3;
+        public int    Concurrency       { get; init; } = 8;
+        public int    ResponseSizeBytes { get; init; } = 1_024;
+        /// <summary>
+        /// IP address to listen/connect on. Defaults to 127.0.0.1 (loopback).
+        /// Hardware timestamps require a physical NIC: set this to the NIC's IP.
+        /// </summary>
+        public string BindAddress       { get; init; } = "127.0.0.1";
     }
 
     // Per-worker mutable accumulator (not shared across threads).
@@ -55,6 +65,17 @@ internal static class BandwidthBenchmark
         Console.WriteLine($"  Concurrency  : {options.Concurrency} workers");
         Console.WriteLine($"  Response     : {options.ResponseSizeBytes:N0} bytes/request");
         Console.WriteLine($"  Sample rate  : 1/{options.SampleRate}  ({100.0 / options.SampleRate:F1}% of requests)");
+        Console.WriteLine($"  Bind address : {options.BindAddress}");
+
+        bool hwMode = OperatingSystem.IsLinux();
+        bool isLoopback = options.BindAddress is "127.0.0.1" or "::1" or "localhost";
+        if (hwMode && isLoopback)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("  NOTE: Hardware timestamps need a physical NIC.");
+            Console.WriteLine("        Use --bind <nic-ip> to get real HW timestamp readings.");
+            Console.ResetColor();
+        }
         Console.WriteLine();
 
         BenchMode[] modes = BuildModeList();
@@ -101,8 +122,11 @@ internal static class BandwidthBenchmark
         builder.Logging.SetMinimumLevel(LogLevel.None);
 
         // Port 0 → OS picks a free port; resolved after StartAsync.
+        IPAddress bindIp = IPAddress.TryParse(options.BindAddress, out IPAddress? parsed)
+            ? parsed
+            : IPAddress.Loopback;
         builder.Services.Configure<KestrelServerOptions>(
-            k => k.Listen(IPAddress.Loopback, 0));
+            k => k.Listen(bindIp, 0));
 
         if (mode != BenchMode.None)
         {

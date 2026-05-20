@@ -216,11 +216,12 @@ internal static class Program
     private static BandwidthBenchmark.Options ParseBandwidthOptions(string[] args) =>
         new()
         {
-            SampleRate        = ParseInt(args, "--sample-rate",   1),
-            DurationSeconds   = ParseInt(args, "--duration",     10),
-            WarmupSeconds     = ParseInt(args, "--warmup",        3),
-            Concurrency       = ParseInt(args, "--concurrency",   8),
-            ResponseSizeBytes = ParseInt(args, "--response-size", 1_024),
+            SampleRate        = ParseInt(args,    "--sample-rate",   1),
+            DurationSeconds   = ParseInt(args,    "--duration",     10),
+            WarmupSeconds     = ParseInt(args,    "--warmup",        3),
+            Concurrency       = ParseInt(args,    "--concurrency",   8),
+            ResponseSizeBytes = ParseInt(args,    "--response-size", 1_024),
+            BindAddress       = ParseString(args, "--bind",          "127.0.0.1"),
         };
 
     private static int ParseInt(string[] args, string flag, int defaultValue)
@@ -229,5 +230,11 @@ internal static class Program
         return idx >= 0 && idx + 1 < args.Length && int.TryParse(args[idx + 1], out int val)
             ? val
             : defaultValue;
+    }
+
+    private static string ParseString(string[] args, string flag, string defaultValue)
+    {
+        int idx = Array.IndexOf(args, flag);
+        return idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : defaultValue;
     }
 }
