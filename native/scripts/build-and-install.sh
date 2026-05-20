@@ -109,16 +109,16 @@ echo ""
 # ── CMake generator selection ──────────────────────────────────────────────────
 CMAKE_EXTRA_ARGS=()
 if [ "$OS" = "win" ]; then
-    if command -v ninja >/dev/null 2>&1; then
-        CMAKE_EXTRA_ARGS+=("-G" "Ninja")
-        echo "Generator: Ninja (MSVC toolchain)"
-    else
+    # if command -v ninja >/dev/null 2>&1; then
+    #     CMAKE_EXTRA_ARGS+=("-G" "Ninja")
+    #     echo "Generator: Ninja (MSVC toolchain)"
+    # else
         case "$ARCH" in
             x64)   CMAKE_EXTRA_ARGS+=("-A" "x64")   ;;
             arm64) CMAKE_EXTRA_ARGS+=("-A" "ARM64")  ;;
         esac
         echo "Generator: Visual Studio (arch=${ARCH})"
-    fi
+    #fi
 fi
 
 # ── CMake configure + build ────────────────────────────────────────────────────
