@@ -15,6 +15,8 @@
 set -x
 set -euo pipefail
 
+printenv
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 BUILD_CONFIG="${1:-Release}"
