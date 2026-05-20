@@ -207,6 +207,7 @@ nupkgs/
 
 # Native CMake intermediate build output (clean with: rm -rf native/build/)
 native/build/
+runtimes/
 
 # NuGet Symbol Packages
 *.snupkg

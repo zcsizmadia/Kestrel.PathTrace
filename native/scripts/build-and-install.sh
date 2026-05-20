@@ -12,6 +12,7 @@
 # Prerequisites: cmake, a C compiler (gcc / clang / MSVC / MinGW)
 # The CMake generator is not forced — CMake picks the best available one.
 
+set -x
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -109,16 +110,11 @@ echo ""
 # ── CMake generator selection ──────────────────────────────────────────────────
 CMAKE_EXTRA_ARGS=()
 if [ "$OS" = "win" ]; then
-    # if command -v ninja >/dev/null 2>&1; then
-    #     CMAKE_EXTRA_ARGS+=("-G" "Ninja")
-    #     echo "Generator: Ninja (MSVC toolchain)"
-    # else
-        case "$ARCH" in
-            x64)   CMAKE_EXTRA_ARGS+=("-A" "x64")   ;;
-            arm64) CMAKE_EXTRA_ARGS+=("-A" "ARM64")  ;;
-        esac
-        echo "Generator: Visual Studio (arch=${ARCH})"
-    #fi
+    case "$ARCH" in
+        x64)   CMAKE_EXTRA_ARGS+=("-A" "x64")   ;;
+        arm64) CMAKE_EXTRA_ARGS+=("-A" "ARM64")  ;;
+    esac
+    echo "Generator: Visual Studio (arch=${ARCH})"
 fi
 
 # ── CMake configure + build ────────────────────────────────────────────────────
