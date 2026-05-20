@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Kestrel.PathTrace.Export.OpenTelemetry</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Export.OpenTelemetry</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>OpenTelemetry exporter for Kestrel.PathTrace pipeline spans and tags.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Api" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kestrel.PathTrace.Abstractions\Kestrel.PathTrace.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

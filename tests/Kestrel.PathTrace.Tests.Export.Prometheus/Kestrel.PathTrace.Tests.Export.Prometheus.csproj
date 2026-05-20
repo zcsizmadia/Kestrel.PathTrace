@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Kestrel.PathTrace.Tests.Export.Prometheus</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Tests.Export.Prometheus</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="TUnit.Assertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.Prometheus\Kestrel.PathTrace.Export.Prometheus.csproj" />
+  </ItemGroup>
+
+</Project>

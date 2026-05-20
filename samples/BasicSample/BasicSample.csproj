@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <AssemblyName>BasicSample</AssemblyName>
+    <RootNamespace>BasicSample</RootNamespace>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="prometheus-net.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.Prometheus\Kestrel.PathTrace.Export.Prometheus.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.OpenTelemetry\Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Kestrel.PathTrace.Benchmarks</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Benchmarks</RootNamespace>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
+  </ItemGroup>
+
+</Project>

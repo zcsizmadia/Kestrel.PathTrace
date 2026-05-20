@@ -1,0 +1,118 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix: &platform-matrix
+        include:
+          - runtimeId: win-x64
+            os: windows-latest
+
+          - runtimeId: win-arm64
+            os: windows-11-arm
+
+          - runtimeId: linux-x64
+            os: ubuntu-latest
+
+          - runtimeId: linux-arm64
+            os: ubuntu-24.04-arm
+
+          - runtimeId: linux-musl-x64
+            os: ubuntu-latest
+            container: alpine:latest
+
+          - runtimeId: linux-musl-arm64
+            os: ubuntu-24.04-arm
+            container: alpine:latest
+
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    name: Build - (${{ matrix.runtimeId }})
+
+    steps:
+      # action/checkout fails on Alpine Arm64 without this fix
+      - name: Fix Alpine arm64 compatibility
+        if: matrix.runtimeId == 'linux-musl-arm64'
+        uses: laverdet/alpine-arm64@v1
+
+      - uses: actions/checkout@v6
+
+      # Install packages needed for building the native libraries.
+      - name: Install packages
+        shell: sh
+        run: |
+          if [ -f /etc/alpine-release ]; then
+            apk add --no-cache \
+              build-base cmake clang git curl tar bash icu pkgconf
+          fi
+
+      - name: Install .NET SDKs
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Build native library
+        shell: bash
+        run: native/scripts/build-and-install.sh
+
+      - name: Build
+        shell: bash
+        run: |
+          dotnet restore
+          dotnet build -c Release --no-restore
+
+      - name: Test
+        shell: bash
+        run: |
+          dotnet test -c Release --no-build --no-restore
+
+      - name: Upload native library artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: runtimes-${{ matrix.runtimeId }}
+          path: runtimes
+
+  build-nupkg:
+    needs: [build]
+    runs-on: ubuntu-latest
+    name: Build NuGet package
+    if: always() && needs.build.result == 'success'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install .NET SDKs
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Download all native library artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: runtimes-*
+          path: runtimes
+          merge-multiple: true
+
+      - name: Pack NuGet package
+        shell: bash
+        run: |
+          dotnet pack -c Release -o nupkgs
+
+      - name: Upload NuGet package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: |
+            nupkgs/*.nupkg

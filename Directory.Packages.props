@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Prometheus -->
+    <PackageVersion Include="prometheus-net" Version="8.2.1" />
+    <PackageVersion Include="prometheus-net.AspNetCore" Version="8.2.1" />
+
+    <!-- OpenTelemetry -->
+    <PackageVersion Include="OpenTelemetry" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+
+    <!-- Testing -->
+    <PackageVersion Include="TUnit" Version="1.45.8" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.45.8" />
+    <PackageVersion Include="TUnit.Core" Version="1.45.8" />
+
+    <!-- Benchmarking -->
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.2" />
+  </ItemGroup>
+</Project>

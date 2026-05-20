@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Kestrel.PathTrace.Tests.Export.OpenTelemetry</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Tests.Export.OpenTelemetry</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="TUnit.Assertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.OpenTelemetry\Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
+  </ItemGroup>
+
+</Project>

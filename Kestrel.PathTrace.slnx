@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kestrel.PathTrace.Abstractions/Kestrel.PathTrace.Abstractions.csproj" />
+    <Project Path="src/Kestrel.PathTrace.Export.Prometheus/Kestrel.PathTrace.Export.Prometheus.csproj" />
+    <Project Path="src/Kestrel.PathTrace.Export.OpenTelemetry/Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
+    <Project Path="src/Kestrel.PathTrace/Kestrel.PathTrace.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Kestrel.PathTrace.Tests.Abstractions/Kestrel.PathTrace.Tests.Abstractions.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Native.Linux/Kestrel.PathTrace.Tests.Native.Linux.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Native.Windows/Kestrel.PathTrace.Tests.Native.Windows.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Transport/Kestrel.PathTrace.Tests.Transport.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Export.OpenTelemetry/Kestrel.PathTrace.Tests.Export.OpenTelemetry.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Export.Prometheus/Kestrel.PathTrace.Tests.Export.Prometheus.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Integration/Kestrel.PathTrace.Tests.Integration.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/BasicSample/BasicSample.csproj" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Kestrel.PathTrace.Benchmarks/Kestrel.PathTrace.Benchmarks.csproj" />
+  </Folder>
+</Solution>
