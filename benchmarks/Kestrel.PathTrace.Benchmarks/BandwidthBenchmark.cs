@@ -31,7 +31,7 @@ namespace Kestrel.PathTrace.Benchmarks;
 /// </summary>
 internal static class BandwidthBenchmark
 {
-    internal enum BenchMode { None, Software, Hardware }
+    internal enum BenchMode { None, PathTrace }
 
     internal sealed class Options
     {
@@ -67,13 +67,12 @@ internal static class BandwidthBenchmark
         Console.WriteLine($"  Sample rate  : 1/{options.SampleRate}  ({100.0 / options.SampleRate:F1}% of requests)");
         Console.WriteLine($"  Bind address : {options.BindAddress}");
 
-        bool hwMode = OperatingSystem.IsLinux();
         bool isLoopback = options.BindAddress is "127.0.0.1" or "::1" or "localhost";
-        if (hwMode && isLoopback)
+        if (OperatingSystem.IsLinux() && isLoopback)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("  NOTE: Hardware timestamps need a physical NIC.");
-            Console.WriteLine("        Use --bind <nic-ip> to get real HW timestamp readings.");
+            Console.WriteLine("  NOTE: HW timestamps need a physical NIC.");
+            Console.WriteLine("        Use --bind <nic-ip> so traffic flows over the NIC.");
             Console.ResetColor();
         }
         Console.WriteLine();
@@ -95,22 +94,13 @@ internal static class BandwidthBenchmark
 
     // ── Modes ────────────────────────────────────────────────────────────────
 
-    private static BenchMode[] BuildModeList()
-    {
-        var list = new List<BenchMode> { BenchMode.None, BenchMode.Software };
-        if (OperatingSystem.IsLinux())
-        {
-            list.Add(BenchMode.Hardware);
-        }
-        return [.. list];
-    }
+    private static BenchMode[] BuildModeList() => [BenchMode.None, BenchMode.PathTrace];
 
     private static string ModeLabel(BenchMode mode) => mode switch
     {
-        BenchMode.None     => "None (baseline)",
-        BenchMode.Software => "Software timestamps",
-        BenchMode.Hardware => "HW timestamps",
-        _                  => mode.ToString(),
+        BenchMode.None      => "None (baseline)",
+        BenchMode.PathTrace => "PathTrace",
+        _                   => mode.ToString(),
     };
 
     // ── Server lifecycle ─────────────────────────────────────────────────────
@@ -135,7 +125,8 @@ internal static class BandwidthBenchmark
                 o.SampleRate = options.SampleRate;
                 o.Transport  = new TransportInstrumentationOptions
                 {
-                    EnableHardwareTimestamping   = mode == BenchMode.Hardware,
+                    // EnableHardwareTimestamping defaults to true: the library automatically
+                    // uses HW timestamps when the NIC supports them, falling back to SW.
                     EnableTxHardwareTimestamping = false,
                     EnableWindowsTcpInfo         = false,
                 };
