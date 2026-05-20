@@ -163,12 +163,11 @@ to `runtimes/<RID>/native/`.
 
 ## Packages
 
-| Package | Description |
-|---|---|
-| `Kestrel.PathTrace.Abstractions` | Interfaces and data types only; no ASP.NET Core dependency |
-| `Kestrel.PathTrace` | Core: transport instrumentation, middleware, DI registration |
-| `Kestrel.PathTrace.Export.Prometheus` | Prometheus histograms via `prometheus-net` |
-| `Kestrel.PathTrace.Export.OpenTelemetry` | OpenTelemetry spans via `OpenTelemetry.Api` |
+| Package | Target frameworks | Description |
+|---|---|---|
+| `Kestrel.PathTrace` | net8 · net9 · net10 | Core: transport instrumentation, middleware, DI registration |
+| `Kestrel.PathTrace.Export.Prometheus` | net8 · net9 · net10 | Prometheus histograms via `prometheus-net` |
+| `Kestrel.PathTrace.Export.OpenTelemetry` | net8 · net9 · net10 | OpenTelemetry spans via `OpenTelemetry.Api` |
 
 ---
 
@@ -411,12 +410,13 @@ NIC timestamping capabilities resolved once per connection via
 ```csharp
 public sealed class ConnectionTelemetryState
 {
-    public nint                    SocketHandle        { get; set; }
-    public NicTimestampCapabilities? NicCapabilities   { get; set; }
-    public ClockCalibration?       ClockCalibration    { get; set; }
-    public string                  InterfaceName       { get; set; }
-    public PacketTimestamps?       LastRxTimestamp     { get; set; }
-    public long                    T0_ConnectionAccepted { get; set; }
+    public nint                      SocketHandle          { get; set; }
+    public NicTimestampCapabilities? NicCapabilities       { get; set; }
+    public ClockCalibration?         ClockCalibration      { get; set; }
+    public string                    InterfaceName         { get; set; }
+    public PacketTimestamps?         LastRxTimestamp       { get; set; }
+    public long                      T0_ConnectionAccepted { get; set; }
+    public AddressFamily             AddressFamily         { get; set; }
 }
 ```
 
@@ -643,7 +643,6 @@ Coverage measured on Windows (linux-specific paths skipped by platform guards):
 
 | Assembly | Line | Block |
 |---|---|---|
-| `Kestrel.PathTrace.Abstractions` | 88.0% | 87.3% |
 | `Kestrel.PathTrace.Export.OpenTelemetry` | 91.8% | 94.7% |
 | `Kestrel.PathTrace.Export.Prometheus` | 82.0% | 84.9% |
 | `Kestrel.PathTrace` | 5.3%\* | 5.3%\* |

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
     <AssemblyName>Kestrel.PathTrace.Benchmarks</AssemblyName>
     <RootNamespace>Kestrel.PathTrace.Benchmarks</RootNamespace>
     <OutputType>Exe</OutputType>

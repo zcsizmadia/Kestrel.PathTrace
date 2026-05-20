@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Kestrel.PathTrace.Export.Prometheus</AssemblyName>
     <RootNamespace>Kestrel.PathTrace.Export.Prometheus</RootNamespace>
     <IsPackable>true</IsPackable>

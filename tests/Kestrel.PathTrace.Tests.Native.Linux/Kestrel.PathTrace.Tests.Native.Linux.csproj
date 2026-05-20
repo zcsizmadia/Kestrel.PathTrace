@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Kestrel.PathTrace.Tests.Native.Linux</AssemblyName>
     <RootNamespace>Kestrel.PathTrace.Tests.Native.Linux</RootNamespace>
     <IsTestProject>true</IsTestProject>
