@@ -40,9 +40,6 @@ detect_arch() {
         case "${VSCMD_ARG_TGT_ARCH}" in
             x64)   echo "x64"   ; return ;;
             arm64) echo "arm64" ; return ;;
-            x86)
-                echo "error: 32-bit (x86) targets are not supported" >&2
-                exit 1 ;;
         esac
     fi
     # RUNNER_ARCH is set by Github runner
@@ -50,6 +47,7 @@ detect_arch() {
         case "${RUNNER_ARCH}" in
             ARM64) echo "arm64" ; return ;;
             AMD64) echo "x64"   ; return ;;
+            X64) echo "x64"     ; return ;;
         esac
     fi
     # PROCESSOR_ARCHITECTURE is set by Windows for every process and correctly
