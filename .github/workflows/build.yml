@@ -110,7 +110,11 @@ jobs:
       - name: Pack NuGet package
         shell: bash
         run: |
-          dotnet pack -c Release -o nupkgs
+          dotnet restore
+          dotnet build -c Release --no-restore
+          dotnet pack -c Release -o nupkgs --no-build src/Kestrel.PathTrace/
+          dotnet pack -c Release -o nupkgs --no-build src/Kestrel.PathTrace.OpenTelemetry/
+          dotnet pack -c Release -o nupkgs --no-build src/Kestrel.PathTrace.Prometheus/
 
       - name: Upload NuGet package artifact
         uses: actions/upload-artifact@v7

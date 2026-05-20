@@ -20,11 +20,11 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zcsizmadia/Kestrel.PathTrace</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/zcsizmadia/Kestrel.PathTrace</PackageProjectUrl>
     <PackageTags>kestrel;aspnetcore;tracing;latency;opentelemetry;prometheus</PackageTags>
-
-    <!-- Repo root — used by csproj files to reference runtimes/<RID>/native/ -->
-    <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
+    <PackageReleaseNotes><a href="https://github.com/zcsizmadia/Kestrel.PathTrace/releases">Release Notes</a></PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>

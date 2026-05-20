@@ -1,5 +1,5 @@
 using Kestrel.PathTrace.Abstractions;
-using Kestrel.PathTrace.Export.Prometheus;
+using Kestrel.PathTrace.Prometheus;
 
 using Microsoft.AspNetCore.Http;
 
@@ -8,7 +8,7 @@ using Prometheus;
 using TUnit.Assertions;
 using TUnit.Core;
 
-namespace Kestrel.PathTrace.Tests.Export.Prometheus;
+namespace Kestrel.PathTrace.Tests.Prometheus;
 
 public sealed class PrometheusSinkTests
 {

@@ -49,7 +49,7 @@ jobs:
           echo "Validating version: $TAG_VERSION"
 
           # Extract version from csproj
-          PROJECT_VERSION="$(dotnet msbuild src/KernelTrace/ -getProperty:Version -nologo -v:q | tr -d '\r' | xargs)"
+          PROJECT_VERSION="$(dotnet msbuild src/Kestrel.PathTrace/ -getProperty:Version -nologo -v:q | tr -d '\r' | xargs)"
 
           # Check if the tag version matches the project version
           if [[ "$TAG_VERSION" != "$PROJECT_VERSION" ]]; then
@@ -58,7 +58,7 @@ jobs:
           fi
 
           # Path to the specific nupkg we want
-          TARGET_NUPKGS="KernelTrace KernelTrace.SourceGenerators KernelTrace.AspNetCore"
+          TARGET_NUPKGS="Kestrel.PathTrace Kestrel.PathTrace.OpenTelemetry Kestrel.PathTrace.Prometheus"
 
           # Verify both .nupkg and .snupkg exist for every package
           for NUPKG in $TARGET_NUPKGS; do

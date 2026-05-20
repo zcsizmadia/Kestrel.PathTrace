@@ -9,6 +9,8 @@ namespace Kestrel.PathTrace.Native.Windows;
 [SupportedOSPlatform("windows")]
 public static class TcpInfoInterop
 {
+    static TcpInfoInterop() => NativeLibraryResolver.EnsureRegistered();
+
     /// <summary>
     /// Attempts to read <see cref="TcpInfoV0"/> for the given socket handle.
     /// </summary>

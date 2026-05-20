@@ -9,78 +9,17 @@
   </PropertyGroup>
 
 
-  <!-- ── Pre-built native shims — output copy (not packed here) ────────────────
-       Populated by native/scripts/build-and-install.sh before dotnet build.
-       Pack="false": the packer never sees these; NuGet packing is handled by
-       the <None Pack="true"> items below. -->
-  <PropertyGroup>
-    <_NativeArch>x64</_NativeArch>
-    <_NativeArch Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">arm64</_NativeArch>
-    <!-- Honour an explicit -r flag (e.g. linux-musl-x64 or win-arm64). -->
-    <_LinuxRID Condition="'$(RuntimeIdentifier)' != '' AND $(RuntimeIdentifier.StartsWith('linux'))">$(RuntimeIdentifier)</_LinuxRID>
-    <_LinuxRID Condition="'$(_LinuxRID)' == ''">linux-$(_NativeArch)</_LinuxRID>
-    <_HwtstampSo>$(RepoRoot)runtimes\$(_LinuxRID)\native\libhwtstamp_shim.so</_HwtstampSo>
-    <_WinRID Condition="'$(RuntimeIdentifier)' != '' AND $(RuntimeIdentifier.StartsWith('win'))">$(RuntimeIdentifier)</_WinRID>
-    <_WinRID Condition="'$(_WinRID)' == ''">win-$(_NativeArch)</_WinRID>
-    <_TcpInfoDll>$(RepoRoot)runtimes\$(_WinRID)\native\tcpinfo_shim.dll</_TcpInfoDll>
-  </PropertyGroup>
-
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('linux')) AND Exists('$(_HwtstampSo)')">
-    <Content Include="$(_HwtstampSo)" Link="libhwtstamp_shim.so"
-             CopyToOutputDirectory="PreserveNewest" Pack="false" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('windows')) AND Exists('$(_TcpInfoDll)')">
-    <Content Include="$(_TcpInfoDll)" Link="tcpinfo_shim.dll"
-             CopyToOutputDirectory="PreserveNewest" Pack="false" />
-  </ItemGroup>
-
-  <!-- ── Native assets bundled in the NuGet package ────────────────────────────
-       Source: runtimes/<RID>/native/  (populated by native/scripts/build-and-install.sh)
-       Pack destination: runtimes/<RID>/native/  (the standard .NET RID convention)
-
-       Rules that prevent double-packing warnings (NU5100 / NU5103):
-         • Pack="true" + PackagePath  →  goes into the .nupkg at the exact path
-         • Visible="false"            →  hidden from Solution Explorer
-         • NO CopyToOutputDirectory   →  the packer never sees this via the output folder
-         • Local dev copy is handled by the <Content CopyToOutputDirectory> items above. ── -->
   <ItemGroup>
-    <!-- Linux x64 (glibc) -->
-    <None Include="$(RepoRoot)runtimes\linux-x64\native\libhwtstamp_shim.so"
-          Condition="Exists('$(RepoRoot)runtimes\linux-x64\native\libhwtstamp_shim.so')"
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <!-- Pack into runtimes/ in the .nupkg AND copy to the output dir for local runs.
+         Using a single None item avoids the Content item's default content/ and
+         contentFiles/ pack paths that would otherwise duplicate the binaries. -->
+    <None Include="../../runtimes/**"
           Pack="true"
-          PackagePath="runtimes/linux-x64/native/libhwtstamp_shim.so"
-          Visible="false" />
-    <!-- Linux arm64 (glibc) -->
-    <None Include="$(RepoRoot)runtimes\linux-arm64\native\libhwtstamp_shim.so"
-          Condition="Exists('$(RepoRoot)runtimes\linux-arm64\native\libhwtstamp_shim.so')"
-          Pack="true"
-          PackagePath="runtimes/linux-arm64/native/libhwtstamp_shim.so"
-          Visible="false" />
-    <!-- Linux x64 musl (Alpine) -->
-    <None Include="$(RepoRoot)runtimes\linux-musl-x64\native\libhwtstamp_shim.so"
-          Condition="Exists('$(RepoRoot)runtimes\linux-musl-x64\native\libhwtstamp_shim.so')"
-          Pack="true"
-          PackagePath="runtimes/linux-musl-x64/native/libhwtstamp_shim.so"
-          Visible="false" />
-    <!-- Linux arm64 musl (Alpine) -->
-    <None Include="$(RepoRoot)runtimes\linux-musl-arm64\native\libhwtstamp_shim.so"
-          Condition="Exists('$(RepoRoot)runtimes\linux-musl-arm64\native\libhwtstamp_shim.so')"
-          Pack="true"
-          PackagePath="runtimes/linux-musl-arm64/native/libhwtstamp_shim.so"
-          Visible="false" />
-    <!-- Windows x64 -->
-    <None Include="$(RepoRoot)runtimes\win-x64\native\tcpinfo_shim.dll"
-          Condition="Exists('$(RepoRoot)runtimes\win-x64\native\tcpinfo_shim.dll')"
-          Pack="true"
-          PackagePath="runtimes/win-x64/native/tcpinfo_shim.dll"
-          Visible="false" />
-    <!-- Windows arm64 -->
-    <None Include="$(RepoRoot)runtimes\win-arm64\native\tcpinfo_shim.dll"
-          Condition="Exists('$(RepoRoot)runtimes\win-arm64\native\tcpinfo_shim.dll')"
-          Pack="true"
-          PackagePath="runtimes/win-arm64/native/tcpinfo_shim.dll"
-          Visible="false" />
+          PackagePath="runtimes/"
+          CopyToOutputDirectory="PreserveNewest"
+          LinkBase="runtimes\" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using Kestrel.PathTrace;
-using Kestrel.PathTrace.Export.OpenTelemetry;
-using Kestrel.PathTrace.Export.Prometheus;
+using Kestrel.PathTrace.OpenTelemetry;
+using Kestrel.PathTrace.Prometheus;
 
 using OpenTelemetry.Trace;
 

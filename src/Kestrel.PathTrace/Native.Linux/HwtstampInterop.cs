@@ -13,6 +13,8 @@ namespace Kestrel.PathTrace.Native.Linux;
 [SupportedOSPlatform("linux")]
 public static class HwtstampInterop
 {
+    static HwtstampInterop() => NativeLibraryResolver.EnsureRegistered();
+
     // -----------------------------------------------------------------------
     // NIC capabilities
     // -----------------------------------------------------------------------

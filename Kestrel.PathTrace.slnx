@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Kestrel.PathTrace.Export.Prometheus/Kestrel.PathTrace.Export.Prometheus.csproj" />
-    <Project Path="src/Kestrel.PathTrace.Export.OpenTelemetry/Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
+    <Project Path="src/Kestrel.PathTrace.Prometheus/Kestrel.PathTrace.Prometheus.csproj" />
+    <Project Path="src/Kestrel.PathTrace.OpenTelemetry/Kestrel.PathTrace.OpenTelemetry.csproj" />
     <Project Path="src/Kestrel.PathTrace/Kestrel.PathTrace.csproj" />
   </Folder>
   <Folder Name="/tests/">
@@ -9,8 +9,8 @@
     <Project Path="tests/Kestrel.PathTrace.Tests.Native.Linux/Kestrel.PathTrace.Tests.Native.Linux.csproj" />
     <Project Path="tests/Kestrel.PathTrace.Tests.Native.Windows/Kestrel.PathTrace.Tests.Native.Windows.csproj" />
     <Project Path="tests/Kestrel.PathTrace.Tests.Transport/Kestrel.PathTrace.Tests.Transport.csproj" />
-    <Project Path="tests/Kestrel.PathTrace.Tests.Export.OpenTelemetry/Kestrel.PathTrace.Tests.Export.OpenTelemetry.csproj" />
-    <Project Path="tests/Kestrel.PathTrace.Tests.Export.Prometheus/Kestrel.PathTrace.Tests.Export.Prometheus.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.OpenTelemetry/Kestrel.PathTrace.Tests.OpenTelemetry.csproj" />
+    <Project Path="tests/Kestrel.PathTrace.Tests.Prometheus/Kestrel.PathTrace.Tests.Prometheus.csproj" />
     <Project Path="tests/Kestrel.PathTrace.Tests.Integration/Kestrel.PathTrace.Tests.Integration.csproj" />
   </Folder>
   <Folder Name="/samples/">

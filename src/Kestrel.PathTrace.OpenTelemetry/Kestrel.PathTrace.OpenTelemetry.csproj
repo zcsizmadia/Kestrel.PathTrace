@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Kestrel.PathTrace.Export.OpenTelemetry</AssemblyName>
-    <RootNamespace>Kestrel.PathTrace.Export.OpenTelemetry</RootNamespace>
+    <AssemblyName>Kestrel.PathTrace.OpenTelemetry</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.OpenTelemetry</RootNamespace>
     <IsPackable>true</IsPackable>
     <Description>OpenTelemetry exporter for Kestrel.PathTrace pipeline spans and tags.</Description>
   </PropertyGroup>
@@ -15,5 +15,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
 
 </Project>

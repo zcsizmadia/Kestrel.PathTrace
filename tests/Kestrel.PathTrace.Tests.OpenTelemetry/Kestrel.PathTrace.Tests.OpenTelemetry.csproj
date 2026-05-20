@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Kestrel.PathTrace.Tests.Export.Prometheus</AssemblyName>
-    <RootNamespace>Kestrel.PathTrace.Tests.Export.Prometheus</RootNamespace>
+    <AssemblyName>Kestrel.PathTrace.Tests.OpenTelemetry</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Tests.OpenTelemetry</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <OutputType>Exe</OutputType>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.Prometheus\Kestrel.PathTrace.Export.Prometheus.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.OpenTelemetry\Kestrel.PathTrace.OpenTelemetry.csproj" />
   </ItemGroup>
 
 </Project>
