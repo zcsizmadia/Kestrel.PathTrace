@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Runtime.Versioning;
 
 using Kestrel.PathTrace;
@@ -134,40 +134,95 @@ internal static class BandwidthBenchmark
                 return;
             }
 
-            using var sock = new Socket(bindIp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            sock.Bind(new IPEndPoint(bindIp, 0));
+            // Resolve bind IP → interface name.
+            string? ifname = NetworkInterface.GetAllNetworkInterfaces()
+                .FirstOrDefault(iface =>
+                    iface.GetIPProperties().UnicastAddresses
+                         .Any(ua => ua.Address.Equals(bindIp)))
+                ?.Name;
 
-            var provider = new LinuxHardwareTimestampProvider();
-            NicTimestampCapabilities? caps = provider.QueryCapabilities(sock.SafeHandle.DangerousGetHandle());
-            if (caps == null)
+            if (string.IsNullOrEmpty(ifname))
             {
-                Console.WriteLine("  NIC: capability query returned no data");
+                Console.WriteLine($"  NIC: no interface found for {bindAddress}");
                 return;
             }
 
-            Console.Write($"  NIC {caps.InterfaceName}: ");
-            if (caps.IsFullHardwareTimestampingAvailable)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("full HW timestamps supported (RX + PHC)");
-            }
-            else if (caps.HardwareRxAvailable)
+            NicTimestampCapabilities? caps = HwtstampInterop.QueryNicCapabilities(ifname);
+
+            if (caps == null)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("HW RX timestamps available (no PHC — limited accuracy)");
+                Console.WriteLine($"  NIC {ifname}: capability query failed (libhwtstamp_shim.so installed?)");
+                Console.ResetColor();
+                return;
             }
-            else
+
+            PrintNicLine(ifname, caps);
+
+            // If this interface has no HW support, check if it is a bond and probe slaves.
+            if (!caps.HardwareRxAvailable)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("HW timestamps NOT supported — will fall back to software");
+                string slavesFile = $"/sys/class/net/{ifname}/bonding/slaves";
+                if (File.Exists(slavesFile))
+                {
+                    string[] slaves = File.ReadAllText(slavesFile)
+                        .Trim()
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    string? firstHwSlave = null;
+                    foreach (string slave in slaves)
+                    {
+                        NicTimestampCapabilities? sc = HwtstampInterop.QueryNicCapabilities(slave);
+                        if (sc != null && sc.HardwareRxAvailable)
+                        {
+                            if (firstHwSlave == null)
+                            {
+                                Console.WriteLine($"  {ifname} is a bond — slaves with HW support:");
+                                firstHwSlave = slave;
+                            }
+                            Console.Write("    ");
+                            PrintNicLine(slave, sc);
+                        }
+                    }
+
+                    if (firstHwSlave != null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"  Bond slaves have no IP — add a temporary one to use HW timestamps:");
+                        Console.WriteLine($"    sudo ip addr add 169.254.100.1/24 dev {firstHwSlave}");
+                        Console.WriteLine($"    dotnet run -c Release --project <benchmarks> -- --bandwidth --bind 169.254.100.1");
+                        Console.WriteLine($"    sudo ip addr del 169.254.100.1/24 dev {firstHwSlave}   # cleanup");
+                        Console.ResetColor();
+                    }
+                }
             }
-            Console.ResetColor();
-            Console.WriteLine();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"  NIC probe failed: {ex.Message}");
         }
+    }
+
+    [SupportedOSPlatform("linux")]
+    private static void PrintNicLine(string ifname, NicTimestampCapabilities caps)
+    {
+        Console.Write($"NIC {ifname}: ");
+        if (caps.IsFullHardwareTimestampingAvailable)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("full HW timestamps (RX + PHC)");
+        }
+        else if (caps.HardwareRxAvailable)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("HW RX timestamps (no PHC — limited accuracy)");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("no HW timestamp support — software fallback");
+        }
+        Console.ResetColor();
     }
 
     // ── Server lifecycle ─────────────────────────────────────────────────────
