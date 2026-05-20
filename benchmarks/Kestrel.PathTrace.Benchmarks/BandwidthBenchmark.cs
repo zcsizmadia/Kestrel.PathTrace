@@ -1,8 +1,11 @@
 using System.Diagnostics;
 using System.Net;
+using System.Net.Sockets;
+using System.Runtime.Versioning;
 
 using Kestrel.PathTrace;
 using Kestrel.PathTrace.Abstractions;
+using Kestrel.PathTrace.Native.Linux;
 using Kestrel.PathTrace.Transport;
 
 using Microsoft.AspNetCore.Builder;
@@ -57,15 +60,16 @@ internal static class BandwidthBenchmark
 
     // ── Entry point ──────────────────────────────────────────────────────────
 
-    internal static async Task RunAsync(Options options)
+    internal static async Task RunAsync(Options options, CancellationToken ct = default)
     {
         Console.WriteLine("Kestrel.PathTrace Bandwidth Benchmark");
-        Console.WriteLine(new string('─', 70));
+        Console.WriteLine(new string('\u2500', 70));
         Console.WriteLine($"  Measurement  : {options.DurationSeconds}s  (+{options.WarmupSeconds}s warmup)");
         Console.WriteLine($"  Concurrency  : {options.Concurrency} workers");
         Console.WriteLine($"  Response     : {options.ResponseSizeBytes:N0} bytes/request");
         Console.WriteLine($"  Sample rate  : 1/{options.SampleRate}  ({100.0 / options.SampleRate:F1}% of requests)");
         Console.WriteLine($"  Bind address : {options.BindAddress}");
+        Console.WriteLine("  Ctrl+C       : aborts and prints partial results");
 
         bool isLoopback = options.BindAddress is "127.0.0.1" or "::1" or "localhost";
         if (OperatingSystem.IsLinux() && isLoopback)
@@ -74,6 +78,10 @@ internal static class BandwidthBenchmark
             Console.WriteLine("  NOTE: HW timestamps need a physical NIC.");
             Console.WriteLine("        Use --bind <nic-ip> so traffic flows over the NIC.");
             Console.ResetColor();
+        }
+        else if (OperatingSystem.IsLinux() && !isLoopback)
+        {
+            ReportNicCapabilities(options.BindAddress);
         }
         Console.WriteLine();
 
@@ -84,12 +92,23 @@ internal static class BandwidthBenchmark
 
         foreach (BenchMode mode in modes)
         {
+            if (ct.IsCancellationRequested)
+            {
+                break;
+            }
             Console.WriteLine($"  [{ModeLabel(mode),-24}] running...");
-            rows.Add(await RunMode(mode, options));
+            rows.Add(await RunMode(mode, options, ct));
         }
 
         Console.WriteLine();
-        PrintTable(rows);
+        if (rows.Count > 0)
+        {
+            PrintTable(rows);
+        }
+        if (ct.IsCancellationRequested)
+        {
+            Console.WriteLine("  (benchmark aborted early)");
+        }
     }
 
     // ── Modes ────────────────────────────────────────────────────────────────
@@ -102,6 +121,54 @@ internal static class BandwidthBenchmark
         BenchMode.PathTrace => "PathTrace",
         _                   => mode.ToString(),
     };
+
+    // ── NIC capability probe (Linux + non-loopback only) ─────────────────────
+
+    [SupportedOSPlatform("linux")]
+    private static void ReportNicCapabilities(string bindAddress)
+    {
+        try
+        {
+            if (!IPAddress.TryParse(bindAddress, out IPAddress? bindIp))
+            {
+                return;
+            }
+
+            using var sock = new Socket(bindIp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            sock.Bind(new IPEndPoint(bindIp, 0));
+
+            var provider = new LinuxHardwareTimestampProvider();
+            NicTimestampCapabilities? caps = provider.QueryCapabilities(sock.SafeHandle.DangerousGetHandle());
+            if (caps == null)
+            {
+                Console.WriteLine("  NIC: capability query returned no data");
+                return;
+            }
+
+            Console.Write($"  NIC {caps.InterfaceName}: ");
+            if (caps.IsFullHardwareTimestampingAvailable)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("full HW timestamps supported (RX + PHC)");
+            }
+            else if (caps.HardwareRxAvailable)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("HW RX timestamps available (no PHC — limited accuracy)");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("HW timestamps NOT supported — will fall back to software");
+            }
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"  NIC probe failed: {ex.Message}");
+        }
+    }
 
     // ── Server lifecycle ─────────────────────────────────────────────────────
 
@@ -164,7 +231,7 @@ internal static class BandwidthBenchmark
     // ── Measurement ──────────────────────────────────────────────────────────
 
     private static async Task<(BenchMode, long, long, double, long[])> RunMode(
-        BenchMode mode, Options options)
+        BenchMode mode, Options options, CancellationToken ct)
     {
         byte[] payload = new byte[options.ResponseSizeBytes];
         for (int i = 0; i < payload.Length; i++)
@@ -179,22 +246,25 @@ internal static class BandwidthBenchmark
             HttpClient[] clients = CreateClients(options.Concurrency, baseUrl);
             try
             {
-                // Warmup — discard results
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(options.WarmupSeconds)))
+                // Warmup — discard results; also cancels early on Ctrl+C
+                using var warmupTimeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(options.WarmupSeconds));
+                using var warmupCts        = CancellationTokenSource.CreateLinkedTokenSource(ct, warmupTimeoutCts.Token);
+                await FireWorkers(clients, url, options.ResponseSizeBytes, warmupCts.Token);
+
+                // If Ctrl+C fired during warmup, return a null result (skipped in the table).
+                if (ct.IsCancellationRequested)
                 {
-                    await FireWorkers(clients, url, options.ResponseSizeBytes, cts.Token);
+                    return (mode, 0, 0, 0.0, []);
                 }
 
                 GC.Collect(2, GCCollectionMode.Forced, blocking: true);
                 GC.WaitForPendingFinalizers();
 
-                // Measurement
+                // Measurement — Ctrl+C cuts the run short but still reports what was measured.
                 var sw = Stopwatch.StartNew();
-                WorkerResult[] results;
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(options.DurationSeconds)))
-                {
-                    results = await FireWorkers(clients, url, options.ResponseSizeBytes, cts.Token);
-                }
+                using var measureTimeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(options.DurationSeconds));
+                using var measureCts        = CancellationTokenSource.CreateLinkedTokenSource(ct, measureTimeoutCts.Token);
+                WorkerResult[] results      = await FireWorkers(clients, url, options.ResponseSizeBytes, measureCts.Token);
                 sw.Stop();
 
                 long   totalReq   = results.Sum(r => r.Requests);
@@ -284,6 +354,12 @@ internal static class BandwidthBenchmark
 
         foreach (var (mode, req, bytes, elapsed, lats) in rows)
         {
+            // elapsed == 0 means the run was cancelled during warmup — skip the row.
+            if (elapsed <= 0)
+            {
+                continue;
+            }
+
             double rps  = req   / elapsed;
             double mbps = bytes / elapsed / (1024.0 * 1024.0);
 

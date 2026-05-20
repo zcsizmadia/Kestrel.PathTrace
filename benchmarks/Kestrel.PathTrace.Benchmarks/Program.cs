@@ -20,7 +20,18 @@ internal static class Program
     {
         if (args.Contains("--bandwidth"))
         {
-            await BandwidthBenchmark.RunAsync(ParseBandwidthOptions(args));
+            using var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (_, e) =>
+            {
+                if (cts.IsCancellationRequested)
+                {
+                    // Second Ctrl+C: get out immediately.
+                    return;
+                }
+                e.Cancel = true; // first Ctrl+C: graceful shutdown
+                cts.Cancel();
+            };
+            await BandwidthBenchmark.RunAsync(ParseBandwidthOptions(args), cts.Token);
             return;
         }
 
