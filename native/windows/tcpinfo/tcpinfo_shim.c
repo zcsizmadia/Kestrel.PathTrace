@@ -25,6 +25,37 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 /*
+ * MinGW's mstcpip.h may not define TCP_INFO_v0 or TCPSTATE.
+ * Provide a layout-compatible definition when building with MinGW.
+ * This struct is used only as an intermediate WSAIoctl output buffer;
+ * field-by-field copying into tcp_info_v0_shim keeps the public ABI stable.
+ */
+#if defined(__MINGW32__) || defined(__MINGW64__)
+typedef DWORD TCPSTATE;
+typedef struct _TCP_INFO_v0 {
+    TCPSTATE State;
+    ULONG    Mss;
+    ULONG64  ConnectionTimeMs;
+    BOOLEAN  TimestampsEnabled;
+    ULONG    RttUs;
+    ULONG    MinRttUs;
+    ULONG    BytesInFlight;
+    ULONG    Cwnd;
+    ULONG    SndWnd;
+    ULONG    RcvWnd;
+    ULONG    RcvBuf;
+    ULONG64  BytesOut;
+    ULONG64  BytesIn;
+    ULONG    BytesReordered;
+    ULONG    BytesRetrans;
+    ULONG    FastRetrans;
+    ULONG    DupAcksIn;
+    ULONG    TimeoutEpisodes;
+    UCHAR    SynRetrans;
+} TCP_INFO_v0;
+#endif
+
+/*
  * SIO_TCP_INFO control code (available on Windows 10 RS2 / Server 2016+).
  * The version parameter selects v0 (0) or v1 (1).
  */
