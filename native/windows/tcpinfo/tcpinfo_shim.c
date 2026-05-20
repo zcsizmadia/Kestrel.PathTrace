@@ -25,35 +25,38 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 /*
- * MinGW's mstcpip.h may not define TCP_INFO_v0 or TCPSTATE.
- * Provide a layout-compatible definition when building with MinGW.
- * This struct is used only as an intermediate WSAIoctl output buffer;
- * field-by-field copying into tcp_info_v0_shim keeps the public ABI stable.
+ * Private ioctl buffer for WSAIoctl(SIO_TCP_INFO, version=0).
+ *
+ * We deliberately avoid using the SDK's TCP_INFO_v0 typedef: different MinGW
+ * versions may or may not define it in <mstcpip.h>, causing either "unknown
+ * type" or "redefinition" errors depending on the toolchain version.
+ * Defining our own struct with a unique tag sidesteps both problems.
+ *
+ * The layout must exactly match the Windows SDK TCP_INFO_v0 binary layout.
+ * ULONG64 fields use their natural alignment so the compiler inserts the same
+ * implicit padding as the SDK struct (verified against ws2tcpip.h / mstcpip.h).
  */
-#if defined(__MINGW32__) || defined(__MINGW64__)
-typedef DWORD TCPSTATE;
-typedef struct _TCP_INFO_v0 {
-    TCPSTATE State;
-    ULONG    Mss;
-    ULONG64  ConnectionTimeMs;
-    BOOLEAN  TimestampsEnabled;
-    ULONG    RttUs;
-    ULONG    MinRttUs;
-    ULONG    BytesInFlight;
-    ULONG    Cwnd;
-    ULONG    SndWnd;
-    ULONG    RcvWnd;
-    ULONG    RcvBuf;
-    ULONG64  BytesOut;
-    ULONG64  BytesIn;
-    ULONG    BytesReordered;
-    ULONG    BytesRetrans;
-    ULONG    FastRetrans;
-    ULONG    DupAcksIn;
-    ULONG    TimeoutEpisodes;
-    UCHAR    SynRetrans;
-} TCP_INFO_v0;
-#endif
+typedef struct tcpinfo_v0_ioctl_buf {
+    DWORD   State;              /* TCPSTATE enum — backed by DWORD            */
+    ULONG   Mss;
+    ULONG64 ConnectionTimeMs;
+    BOOLEAN TimestampsEnabled;
+    ULONG   RttUs;
+    ULONG   MinRttUs;
+    ULONG   BytesInFlight;
+    ULONG   Cwnd;
+    ULONG   SndWnd;
+    ULONG   RcvWnd;
+    ULONG   RcvBuf;
+    ULONG64 BytesOut;
+    ULONG64 BytesIn;
+    ULONG   BytesReordered;
+    ULONG   BytesRetrans;
+    ULONG   FastRetrans;
+    ULONG   DupAcksIn;
+    ULONG   TimeoutEpisodes;
+    UCHAR   SynRetrans;
+} tcpinfo_v0_ioctl_buf;
 
 /*
  * SIO_TCP_INFO control code (available on Windows 10 RS2 / Server 2016+).
@@ -76,10 +79,10 @@ TCPINFO_EXPORT int TCPINFO_CALL get_tcp_info_v0(
 
     /*
      * SIO_TCP_INFO takes a DWORD version as input and returns a
-     * TCP_INFO_v0 (version == 0) or TCP_INFO_v1 (version == 1) structure.
+     * tcpinfo_v0_ioctl_buf (version == 0) structure.
      */
     DWORD version = 0;
-    TCP_INFO_v0 raw;
+    tcpinfo_v0_ioctl_buf raw;
     DWORD bytes_returned = 0;
 
     int result = WSAIoctl(

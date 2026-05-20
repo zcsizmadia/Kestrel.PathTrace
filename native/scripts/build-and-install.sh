@@ -42,6 +42,15 @@ detect_arch() {
                 exit 1 ;;
         esac
     fi
+    # PROCESSOR_ARCHITEW6432 is set by Windows when a non-native-arch process
+    # runs under emulation (e.g. x64 Git Bash on an ARM64 machine).
+    # It reflects the true machine architecture and takes precedence.
+    if [ -n "${PROCESSOR_ARCHITEW6432:-}" ]; then
+        case "${PROCESSOR_ARCHITEW6432}" in
+            ARM64) echo "arm64" ; return ;;
+            AMD64) echo "x64"   ; return ;;
+        esac
+    fi
     # PROCESSOR_ARCHITECTURE is set by Windows for every process and correctly
     # reflects the native machine architecture even when Git Bash (an x64 app)
     # runs under ARM64 emulation and uname -m returns x86_64.

@@ -18,7 +18,8 @@ target_link_libraries(tcpinfo_shim PRIVATE ws2_32)
 
 # Export only the symbols declared in the header
 set_target_properties(tcpinfo_shim PROPERTIES
-    WINDOWS_EXPORT_ALL_SYMBOLS OFF)
+    WINDOWS_EXPORT_ALL_SYMBOLS OFF
+    PREFIX "")   # prevent MinGW from adding 'lib' prefix → tcpinfo_shim.dll not libtcpinfo_shim.dll
 
 install(TARGETS tcpinfo_shim
     RUNTIME DESTINATION bin
