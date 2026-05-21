@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using Prometheus;
 
-namespace Kestrel.PathTrace.Export.Prometheus;
+namespace Kestrel.PathTrace.Prometheus;
 
 /// <summary>
 /// Records <see cref="RequestPathTelemetry"/> into Prometheus histograms.

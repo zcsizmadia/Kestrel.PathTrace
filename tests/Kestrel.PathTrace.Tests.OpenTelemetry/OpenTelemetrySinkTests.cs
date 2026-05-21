@@ -1,14 +1,14 @@
 using System.Diagnostics;
 
 using Kestrel.PathTrace.Abstractions;
-using Kestrel.PathTrace.Export.OpenTelemetry;
+using Kestrel.PathTrace.OpenTelemetry;
 
 using Microsoft.AspNetCore.Http;
 
 using TUnit.Assertions;
 using TUnit.Core;
 
-namespace Kestrel.PathTrace.Tests.Export.OpenTelemetry;
+namespace Kestrel.PathTrace.Tests.OpenTelemetry;
 
 [NotInParallel]
 public sealed class OpenTelemetrySinkTests

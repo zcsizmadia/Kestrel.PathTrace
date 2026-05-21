@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Kestrel.PathTrace.Tests.Abstractions</AssemblyName>
     <RootNamespace>Kestrel.PathTrace.Tests.Abstractions</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Abstractions\Kestrel.PathTrace.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
   </ItemGroup>
 
 </Project>

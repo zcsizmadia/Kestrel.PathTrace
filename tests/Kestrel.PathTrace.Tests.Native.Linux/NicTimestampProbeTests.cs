@@ -30,7 +30,6 @@ public sealed class NicTimestampProbeTests
     }
 
     [Test]
-    [Skip("Requires libhwtstamp_shim.so — run on Linux")]
     public async Task GetCapabilities_IsCached_SecondCallDoesNotHitNative()
     {
         if (!OperatingSystem.IsLinux())
@@ -48,7 +47,6 @@ public sealed class NicTimestampProbeTests
     }
 
     [Test]
-    [Skip("Requires libhwtstamp_shim.so — run on Linux")]
     public async Task Invalidate_ClearsCache()
     {
         if (!OperatingSystem.IsLinux())

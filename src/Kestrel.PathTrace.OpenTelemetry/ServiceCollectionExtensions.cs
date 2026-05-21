@@ -2,7 +2,7 @@ using Kestrel.PathTrace.Abstractions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Kestrel.PathTrace.Export.OpenTelemetry;
+namespace Kestrel.PathTrace.OpenTelemetry;
 
 /// <summary>
 /// Extension methods for registering the OpenTelemetry telemetry sink.

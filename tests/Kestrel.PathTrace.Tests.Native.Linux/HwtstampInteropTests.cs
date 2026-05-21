@@ -70,7 +70,6 @@ public sealed class HwtstampInteropTests
     // -----------------------------------------------------------------------
 
     [Test]
-    [Skip("Requires libhwtstamp_shim.so — run on Linux with native build")]
     public async Task SampleClocks_ReturnsNonZeroMonotonicNs()
     {
         if (!OperatingSystem.IsLinux())
@@ -90,7 +89,6 @@ public sealed class HwtstampInteropTests
     // -----------------------------------------------------------------------
 
     [Test]
-    [Skip("Requires libhwtstamp_shim.so and a real network interface")]
     public async Task QueryNicCapabilities_LoopbackHasNoHwTimestamping()
     {
         if (!OperatingSystem.IsLinux())
@@ -111,7 +109,6 @@ public sealed class HwtstampInteropTests
     // -----------------------------------------------------------------------
 
     [Test]
-    [Skip("Requires libhwtstamp_shim.so — run on Linux")]
     public async Task EnableBestAvailableTimestamps_NullCaps_UsesSoftwareFlags()
     {
         if (!OperatingSystem.IsLinux())

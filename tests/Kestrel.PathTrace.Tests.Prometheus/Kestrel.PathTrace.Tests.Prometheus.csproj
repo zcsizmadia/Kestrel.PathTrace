@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Kestrel.PathTrace.Tests.Export.Prometheus</AssemblyName>
-    <RootNamespace>Kestrel.PathTrace.Tests.Export.Prometheus</RootNamespace>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Kestrel.PathTrace.Tests.Prometheus</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Tests.Prometheus</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <OutputType>Exe</OutputType>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.Prometheus\Kestrel.PathTrace.Export.Prometheus.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Prometheus\Kestrel.PathTrace.Prometheus.csproj" />
   </ItemGroup>
 
 </Project>

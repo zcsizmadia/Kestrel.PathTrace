@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Kestrel.PathTrace.Tests.Export.OpenTelemetry</AssemblyName>
-    <RootNamespace>Kestrel.PathTrace.Tests.Export.OpenTelemetry</RootNamespace>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Kestrel.PathTrace.Tests.OpenTelemetry</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Tests.OpenTelemetry</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <OutputType>Exe</OutputType>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.OpenTelemetry\Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.OpenTelemetry\Kestrel.PathTrace.OpenTelemetry.csproj" />
   </ItemGroup>
 
 </Project>

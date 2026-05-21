@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Kestrel.PathTrace.Prometheus</AssemblyName>
+    <RootNamespace>Kestrel.PathTrace.Prometheus</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>Prometheus (prometheus-net) exporter for Kestrel.PathTrace latency histograms.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="prometheus-net" />
+    <PackageReference Include="prometheus-net.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

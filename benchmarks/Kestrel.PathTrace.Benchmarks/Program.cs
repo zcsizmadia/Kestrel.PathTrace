@@ -16,8 +16,25 @@ internal static class Program
     private const int WarmupIterations = 10_000;
     private const int BenchIterations  = 1_000_000;
 
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
+        if (args.Contains("--bandwidth"))
+        {
+            using var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (_, e) =>
+            {
+                if (cts.IsCancellationRequested)
+                {
+                    // Second Ctrl+C: get out immediately.
+                    return;
+                }
+                e.Cancel = true; // first Ctrl+C: graceful shutdown
+                cts.Cancel();
+            };
+            await BandwidthBenchmark.RunAsync(ParseBandwidthOptions(args), cts.Token);
+            return;
+        }
+
         Console.WriteLine("Kestrel.PathTrace Micro-Benchmarks");
         Console.WriteLine(new string('=', 50));
         Console.WriteLine();
@@ -203,5 +220,32 @@ internal static class Program
         {
             _ = Native.Linux.HwtstampInterop.SampleClocks();
         }
+    }
+
+    // ── Bandwidth benchmark helpers ──────────────────────────────────────────
+
+    private static BandwidthBenchmark.Options ParseBandwidthOptions(string[] args) =>
+        new()
+        {
+            SampleRate        = ParseInt(args,    "--sample-rate",   1),
+            DurationSeconds   = ParseInt(args,    "--duration",     10),
+            WarmupSeconds     = ParseInt(args,    "--warmup",        3),
+            Concurrency       = ParseInt(args,    "--concurrency",   8),
+            ResponseSizeBytes = ParseInt(args,    "--response-size", 1_024),
+            BindAddress       = ParseString(args, "--bind",          "127.0.0.1"),
+        };
+
+    private static int ParseInt(string[] args, string flag, int defaultValue)
+    {
+        int idx = Array.IndexOf(args, flag);
+        return idx >= 0 && idx + 1 < args.Length && int.TryParse(args[idx + 1], out int val)
+            ? val
+            : defaultValue;
+    }
+
+    private static string ParseString(string[] args, string flag, string defaultValue)
+    {
+        int idx = Array.IndexOf(args, flag);
+        return idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : defaultValue;
     }
 }

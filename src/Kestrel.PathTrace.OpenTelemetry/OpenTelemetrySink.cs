@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 using OpenTelemetry.Trace;
 
-namespace Kestrel.PathTrace.Export.OpenTelemetry;
+namespace Kestrel.PathTrace.OpenTelemetry;
 
 /// <summary>
 /// Emits per-request OpenTelemetry spans that model each stage of the Kestrel

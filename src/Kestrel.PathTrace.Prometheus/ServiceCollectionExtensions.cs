@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Prometheus;
 
-namespace Kestrel.PathTrace.Export.Prometheus;
+namespace Kestrel.PathTrace.Prometheus;
 
 /// <summary>
 /// Extension methods for registering the Prometheus telemetry sink.

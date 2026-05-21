@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
     <AssemblyName>BasicSample</AssemblyName>
     <RootNamespace>BasicSample</RootNamespace>
     <OutputType>Exe</OutputType>
@@ -12,10 +13,16 @@
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(ValidateNupkg)' != 'true'">
     <ProjectReference Include="..\..\src\Kestrel.PathTrace\Kestrel.PathTrace.csproj" />
-    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.Prometheus\Kestrel.PathTrace.Export.Prometheus.csproj" />
-    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Export.OpenTelemetry\Kestrel.PathTrace.Export.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.Prometheus\Kestrel.PathTrace.Prometheus.csproj" />
+    <ProjectReference Include="..\..\src\Kestrel.PathTrace.OpenTelemetry\Kestrel.PathTrace.OpenTelemetry.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ValidateNupkg)' == 'true'">
+    <PackageReference Include="Kestrel.PathTrace" />
+    <PackageReference Include="Kestrel.PathTrace.OpenTelemetry" />
+    <PackageReference Include="Kestrel.PathTrace.Prometheus" />
   </ItemGroup>
 
 </Project>

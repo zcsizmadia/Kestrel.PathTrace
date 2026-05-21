@@ -61,6 +61,8 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
+            8.0.x
+            9.0.x
             10.0.x
 
       - name: Build native library
@@ -108,7 +110,11 @@ jobs:
       - name: Pack NuGet package
         shell: bash
         run: |
-          dotnet pack -c Release -o nupkgs
+          dotnet restore
+          dotnet build -c Release --no-restore
+          dotnet pack -c Release -o nupkgs --no-build src/Kestrel.PathTrace/
+          dotnet pack -c Release -o nupkgs --no-build src/Kestrel.PathTrace.OpenTelemetry/
+          dotnet pack -c Release -o nupkgs --no-build src/Kestrel.PathTrace.Prometheus/
 
       - name: Upload NuGet package artifact
         uses: actions/upload-artifact@v7
@@ -116,3 +122,72 @@ jobs:
           name: nuget-packages
           path: |
             nupkgs/*.nupkg
+
+  validate-nupkg:
+    needs: [build-nupkg]
+    if: always() && needs['build-nupkg'].result == 'success'
+    strategy:
+      fail-fast: false
+      matrix: *platform-matrix
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    name: Validate NuGet - (${{ matrix.runtimeId }})
+
+    steps:
+      # Must come before checkout on Alpine arm64.
+      - name: Fix Alpine arm64 compatibility
+        if: matrix.runtimeId == 'linux-musl-arm64'
+        uses: laverdet/alpine-arm64@v1
+
+      - uses: actions/checkout@v6
+
+      # Provides bash, curl, and ICU (required by the .NET runtime) on Alpine.
+      - name: Install Alpine dependencies
+        if: contains(matrix.runtimeId, 'musl')
+        shell: sh
+        run: |
+          apk add --no-cache bash curl tar icu-libs
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-packages
+          path: nupkgs
+
+      # Write a project-scoped nuget.config so that only the local artifact feed
+      # (plus nuget.org for transitive deps) is used during validation.
+      # <clear /> prevents any machine/user-level source from leaking in.
+      - name: Write local nuget.config for BasicSample
+        shell: bash
+        run: |
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<configuration>' \
+            '  <packageSources>' \
+            '    <clear />' \
+            '    <add key="local" value="../../nupkgs" />' \
+            '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' \
+            '  </packageSources>' \
+            '</configuration>' \
+            > samples/BasicSample/nuget.config
+
+      # Directory.Packages.props exposes the three Kestrel.PathTrace PackageVersion
+      # entries only when ValidateNupkg=true, so CPM resolves them from the local feed.
+      - name: Restore and build BasicSample against packed NuGet packages
+        shell: bash
+        run: |
+          dotnet restore -p:ValidateNupkg=true samples/BasicSample/
+          dotnet build -c Release --no-restore -p:ValidateNupkg=true samples/BasicSample/
+
+      # Run the sample for 10 s and let it shut itself down cleanly (exit 0).
+      # A non-zero exit code means the app crashed on startup.
+      - name: Run BasicSample for 10 s (smoke test)
+        shell: bash
+        run: |
+          dotnet run -c Release --no-build --project samples/BasicSample/ \
+            -p:ValidateNupkg=true -- --run-for-seconds 10
