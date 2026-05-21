@@ -88,8 +88,8 @@ timestamps use the PHC clock and are correlated to `Stopwatch` via
 <PackageReference Include="Kestrel.PathTrace" Version="1.0.0" />
 
 <!-- Pick one or both export sinks -->
-<PackageReference Include="Kestrel.PathTrace.Export.Prometheus"     Version="1.0.0" />
-<PackageReference Include="Kestrel.PathTrace.Export.OpenTelemetry" Version="1.0.0" />
+<PackageReference Include="Kestrel.PathTrace.Prometheus"    Version="1.0.0" />
+<PackageReference Include="Kestrel.PathTrace.OpenTelemetry" Version="1.0.0" />
 ```
 
 ### 2. Register services
@@ -102,10 +102,18 @@ builder.Services
     {
         options.Transport = new TransportInstrumentationOptions
         {
-            EnableHardwareTimestamping = true,   // SO_TIMESTAMPING, Linux only
-            EnableTxHardwareTimestamping = false, // TX loop measurement (higher overhead)
-            EnableWindowsTcpInfo = true,          // TCP_INFO via tcpinfo_shim.dll, Windows only
+            EnableHardwareTimestamping    = true,   // SO_TIMESTAMPING, Linux only
+            EnableTxHardwareTimestamping  = false,  // TX loop measurement (higher overhead)
+            EnableWindowsTcpInfo          = true,   // TCP_INFO via tcpinfo_shim.dll, Windows only
         };
+
+        // Sample every 10th request instead of every request.
+        // Reduces sink overhead on high-throughput services.
+        // Omit (or set to 1) to record every request.
+        options.SampleRate = 10;
+
+        // Suppress instrumentation on health/liveness/metrics paths entirely.
+        options.ExcludedRoutePrefixes = ["/health", "/ready", "/metrics"];
     })
     .AddKestrelPathTracePrometheus()      // optional
     .AddKestrelPathTraceOpenTelemetry();  // optional
@@ -166,8 +174,8 @@ to `runtimes/<RID>/native/`.
 | Package | Target frameworks | Description |
 |---|---|---|
 | `Kestrel.PathTrace` | net8 · net9 · net10 | Core: transport instrumentation, middleware, DI registration |
-| `Kestrel.PathTrace.Export.Prometheus` | net8 · net9 · net10 | Prometheus histograms via `prometheus-net` |
-| `Kestrel.PathTrace.Export.OpenTelemetry` | net8 · net9 · net10 | OpenTelemetry spans via `OpenTelemetry.Api` |
+| `Kestrel.PathTrace.Prometheus` | net8 · net9 · net10 | Prometheus histograms via `prometheus-net` |
+| `Kestrel.PathTrace.OpenTelemetry` | net8 · net9 · net10 | OpenTelemetry spans via `OpenTelemetry.Api` |
 
 ---
 
@@ -247,11 +255,19 @@ services.AddOpenTelemetry()
 ```csharp
 public sealed class PathTraceOptions
 {
-    public TransportInstrumentationOptions? Transport { get; set; }
+    public TransportInstrumentationOptions? Transport           { get; set; }
+    public int                              SampleRate          { get; set; } = 1;
+    public IList<string>                    ExcludedRoutePrefixes { get; set; } = [];
 }
 ```
 
 Top-level configuration object passed to `AddKestrelPathTrace`.
+
+| Property | Default | Description |
+|---|---|---|
+| `Transport` | `null` (uses defaults) | Transport instrumentation options. See [`TransportInstrumentationOptions`](#transportinstrumentationoptions). |
+| `SampleRate` | `1` | Record 1 in every N requests. `1` = every request, `10` = every 10th, `100` = every 100th. Values less than 1 are treated as `1`. Useful for high-throughput services where per-request overhead matters. |
+| `ExcludedRoutePrefixes` | `[]` | Path prefixes excluded from all instrumentation (case-insensitive). Bypasses timestamp collection and sink dispatch entirely. Example: `["/health", "/ready", "/metrics"]`. |
 
 ---
 
@@ -643,8 +659,8 @@ Coverage measured on Windows (linux-specific paths skipped by platform guards):
 
 | Assembly | Line | Block |
 |---|---|---|
-| `Kestrel.PathTrace.Export.OpenTelemetry` | 91.8% | 94.7% |
-| `Kestrel.PathTrace.Export.Prometheus` | 82.0% | 84.9% |
+| `Kestrel.PathTrace.OpenTelemetry` | 91.8% | 94.7% |
+| `Kestrel.PathTrace.Prometheus` | 82.0% | 84.9% |
 | `Kestrel.PathTrace` | 5.3%\* | 5.3%\* |
 
 \* The main assembly is dominated by Linux-native P/Invoke code (`hwtstamp_shim`)
