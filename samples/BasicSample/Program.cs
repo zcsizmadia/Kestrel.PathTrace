@@ -63,4 +63,39 @@ app.MapGet("/info", (HttpContext ctx) =>
     };
 });
 
+// Allow CI / automated smoke tests to shut the app down cleanly after N seconds.
+// CLI:     dotnet run -- --run-for-seconds 10
+// Env var: RUN_FOR_SECONDS=10 dotnet run
+int runForSeconds = 0;
+for (int i = 0; i < args.Length - 1; i++)
+{
+    if (args[i] == "--run-for-seconds" && int.TryParse(args[i + 1], out int parsed))
+    {
+        runForSeconds = parsed;
+        break;
+    }
+}
+
+if (runForSeconds == 0)
+{
+    int.TryParse(Environment.GetEnvironmentVariable("RUN_FOR_SECONDS"), out runForSeconds);
+}
+
+if (runForSeconds > 0)
+{
+    IHostApplicationLifetime lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+    _ = Task.Run(async () =>
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(runForSeconds), lifetime.ApplicationStopping);
+            lifetime.StopApplication();
+        }
+        catch (OperationCanceledException)
+        {
+            // App is already stopping (e.g. Ctrl+C) — nothing to do.
+        }
+    });
+}
+
 await app.RunAsync();

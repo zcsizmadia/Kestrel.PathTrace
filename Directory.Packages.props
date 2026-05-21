@@ -22,5 +22,9 @@
 
     <!-- Benchmarking -->
     <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.2" />
+
+    <PackageVersion Include="Kestrel.PathTrace" Version="$(Version)" Condition="'$(ValidateNupkg)' == 'true'" />
+    <PackageVersion Include="Kestrel.PathTrace.OpenTelemetry" Version="$(Version)" Condition="'$(ValidateNupkg)' == 'true'" />
+    <PackageVersion Include="Kestrel.PathTrace.Prometheus" Version="$(Version)" Condition="'$(ValidateNupkg)' == 'true'" />
   </ItemGroup>
 </Project>
