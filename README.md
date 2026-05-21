@@ -8,6 +8,9 @@ writeback — and publishes the resulting latency breakdowns to Prometheus and/o
 OpenTelemetry.
 
 [![Build](https://github.com/zcsizmadia/Kestrel.PathTrace/actions/workflows/build.yml/badge.svg)](https://github.com/zcsizmadia/Kestrel.PathTrace/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/Kestrel.PathTrace.svg)](https://www.nuget.org/packages/Kestrel.PathTrace)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![.NET: 8 | 9 | 10](https://img.shields.io/badge/.NET-8%20%7C%209%20%7C%2010-purple)
 
 ---
 
