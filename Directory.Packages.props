@@ -17,7 +17,7 @@
 
     <!-- Testing -->
     <PackageVersion Include="TUnit" Version="1.45.8" />
-    <PackageVersion Include="TUnit.Assertions" Version="1.47.0" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.63.0" />
     <PackageVersion Include="TUnit.Core" Version="1.45.8" />
 
     <!-- Benchmarking -->
